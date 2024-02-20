@@ -54,10 +54,6 @@ class InventoryResource extends Resource
 
                   ])->columns(1),
 
-
-
-
-
             ]);
     }
 
