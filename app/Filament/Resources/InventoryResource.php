@@ -7,6 +7,7 @@ use App\Filament\Resources\InventoryResource\RelationManagers;
 use App\Models\Category;
 use App\Models\Inventory;
 use Filament\Forms;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -25,22 +26,37 @@ class InventoryResource extends Resource
     {
         return $form
             ->schema([
+                Grid::make()->schema([
+
                 Forms\Components\TextInput::make('name')
                     ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('description')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\FileUpload::make('image')
-                    ->image()
-                    ->required(),
+                    ->maxLength(115),
                 Forms\Components\TextInput::make('quantity')
                     ->required()
                     ->numeric(),
-                    Forms\Components\Select::make('category_id')  // Alteração para o componente Select
-                    ->label('Category')
-                    ->searchable()
-                    ->options(Category::all()->pluck('name', 'id'))
+                Forms\Components\Select::make('category_id')
+                    ->required()
+                    ->relationship('category','name')
+                    ->searchable(),
+
+                ])->columns(3),
+
+                Grid::make()->schema([
+                    Forms\Components\RichEditor::make('description')
+                    ->required()
+                    ->maxLength(255),
+                  ])->columns(1),
+
+                Grid::make()->schema([
+                    Forms\Components\FileUpload::make('image')
+                    ->image()
+                    ->required(),
+
+                  ])->columns(1),
+
+
+
+
 
             ]);
     }
@@ -51,9 +67,13 @@ class InventoryResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('image')
                 ->circular(),
+                Tables\Columns\ToggleColumn::make('active')
+                    ->label('status')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('description')
+                    ->limit(25)
                     ->searchable(),
                 Tables\Columns\TextColumn::make('quantity')
                     ->numeric()
@@ -75,7 +95,9 @@ class InventoryResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

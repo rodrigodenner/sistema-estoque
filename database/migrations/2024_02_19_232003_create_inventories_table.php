@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('description');
             $table->string('image');
             $table->integer('quantity');
+            $table->boolean('active')->default(true);
             $table->foreignIdFor(Category::class);
             $table->timestamps();
         });
